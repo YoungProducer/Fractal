@@ -1,0 +1,213 @@
+#include "cubesLayer.h"
+
+Layer::Layer(int startIndex)
+{
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			m_Array[i][j] = startIndex++;
+
+
+
+	m_Parts.resize(3);
+	for (int i = 0; i < 3; i++)
+	{
+		m_Parts[i].resize(3);
+	}
+
+
+}
+
+Layer::Layer(std::vector<Part> parts)
+{
+
+}
+
+void Layer::rotate(bool clockwise, short rotateCount)
+{
+	std::vector<int> wrapper;
+	std::vector<Part> pwrapper;
+
+	if (clockwise)
+	{
+		for (int i = m_Wrapper.size() - rotateCount * 2; i < m_Wrapper.size(); i++)
+		{
+			wrapper.push_back(m_Wrapper[i]);
+			pwrapper.push_back(m_PartsWrapper[i]);
+		}
+
+		for (int i = 0; i < m_Wrapper.size() - rotateCount * 2; i++)
+		{
+			wrapper.push_back(m_Wrapper[i]);
+			pwrapper.push_back(m_PartsWrapper[i]);
+		}
+	}
+	else
+	{
+		for (int i = rotateCount * 2; i < m_Wrapper.size(); i++)
+		{
+			wrapper.push_back(m_Wrapper[i]);
+			pwrapper.push_back(m_PartsWrapper[i]);
+		}
+
+		for (int i = 0; i < rotateCount * 2; i++)
+		{
+			wrapper.push_back(m_Wrapper[i]);
+			pwrapper.push_back(m_PartsWrapper[i]);
+		}
+	}
+
+	setWrapper(wrapper, pwrapper);
+	//std::cout << toString().c_str() << std::endl;
+}
+
+void Layer::updateWrapper()
+{
+	m_Wrapper.clear();
+	int index = 0;
+	int j;
+	int turn = m_size / 2;
+	for (int k = 1; k <= turn; k++)/*Цикл по номеру витка*/
+	{
+		if (index > m_Wrapper.size() - 1)
+			break;
+
+		for (j = k - 1; j < m_size - k + 1; j++)
+		{
+			m_Wrapper.push_back(m_Array[k - 1][j]);/*Определение значений верхнего гор столбца*/
+			m_PartsWrapper.push_back(m_Parts[k - 1][j]);
+			index++;
+		}
+		for (j = k; j < m_size - k + 1; j++)
+		{
+			m_Wrapper.push_back(m_Array[j][m_size - k]);/* --//-- По правому вертикальному столбцу*/
+			m_PartsWrapper.push_back(m_Parts[j][m_size - k]);
+			index++;
+		}
+		for (j = m_size - k - 1; j >= k - 1; --j)
+		{
+			m_Wrapper.push_back(m_Array[m_size - k][j]);/* --//-- по нижнему горизонтальному столбцу*/
+			m_PartsWrapper.push_back(m_Parts[m_size - k][j]);
+			index++;
+		}
+		for (j = m_size - k - 1; j >= k; j--)
+		{
+			m_Wrapper.push_back(m_Array[j][k - 1]);/* --//-- по левому вертикальному столбцу*/
+			m_PartsWrapper.push_back(m_Parts[j][k - 1]);
+			index++;
+		}
+	}
+}
+
+void Layer::updateWrapper(const std::vector<int>& wrapper, const std::vector<Part>& partsWrapper)
+{
+	int index = 0;
+	int pIndex = 0;
+	int j;
+	int turn = m_size / 2;
+
+	Part buffer;
+
+	for (int k = 1; k <= turn; k++)/*Цикл по номеру витка*/
+	{
+		for (j = k - 1; j < m_size - k + 1; j++)
+		{
+			if (index > m_Wrapper.size() - 1)
+				break;
+			m_Array[k - 1][j] = wrapper[index++];/*Определение значений верхнего гор столбца*/
+			m_Parts[k - 1][j] = partsWrapper[index++];
+		}
+		for (j = k; j < m_size - k + 1; j++)
+		{		
+			if (index > m_Wrapper.size() - 1)
+				break;
+			m_Array[j][m_size - k] = wrapper[index++];/* --//-- По правому вертикальному столбцу*/
+			m_Parts[j][m_size - k] = partsWrapper[index++];
+		}
+		for (j = m_size - k - 1; j >= k - 1; --j)
+		{
+			if (index > m_Wrapper.size() - 1)
+				break;
+			m_Array[m_size - k][j] = wrapper[index++];/* --//-- по нижнему горизонтальному столбцу*/
+			m_Parts[m_size - k][j] = partsWrapper[index++];
+		}
+		for (j = m_size - k - 1; j >= k; j--)
+		{
+			if (index > m_Wrapper.size() - 1)
+				break;
+			m_Array[j][k - 1] = wrapper[index++];/* --//-- по левому вертикальному столбцу*/
+			m_Parts[j][k - 1] = partsWrapper[index++]; 
+		}
+	}
+}
+
+const std::string Layer::toString()
+{
+	std::string out = "";
+	char buffer[5];
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			_itoa_s(m_Array[i][j], buffer, 10);
+			out += buffer;
+		}
+	}
+
+	return out;
+}
+
+void Layer::rotateX(float angle)
+{
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			m_Parts[i][j].rotateX(angle);
+
+	if (angle <= 0)
+		rotate(true, 1);
+	else
+		rotate(false, 1);
+
+}
+
+void Layer::rotateY(float angle)
+{
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			m_Parts[i][j].rotateY(angle);
+	
+
+	if (angle <= 0)
+		rotate(true, 1);
+	else
+		rotate(false, 1);
+}
+
+void Layer::rotateZ(float angle)
+{
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			m_Parts[i][j].rotateZ(angle);
+
+	if (angle <= 0)
+		rotate(true, 1);
+	else
+		rotate(false, 1);
+}
+
+void Layer::addToRenderer(frc::graphics::BatchRenderer2D& renderer)
+{
+	std::vector<Plane> tPlanes;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			tPlanes = m_Parts[i][j].getPlanes();
+
+			for (int z = 0; z < 6; z++)
+			{
+				renderer.submit(&tPlanes[z]);
+			}
+		}
+	}
+}

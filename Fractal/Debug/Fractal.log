@@ -1,0 +1,7 @@
+﻿  main.cpp
+c:\users\pc\documents\visual studio 2017\projects\fractal\fractal\src\fractal\application\window.h(44): warning C4244: 'argument': conversion from 'const T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Fractal.vcxproj -> C:\Users\PC\Documents\Visual Studio 2017\Projects\Fractal\Debug\Fractal.exe
